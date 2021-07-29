@@ -1,0 +1,38 @@
+{
+  "name": "mesto-server",
+  "version": "1.0.0",
+  "description": "backend of Mesto project\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[D\u001bfor \u001b[24~d\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[CMesto-auth project",
+  "main": "app.js",
+  "scripts": {
+    "start": "app.js",
+    "test": "test",
+    "lint": "npx eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totfront/mesto-backend.git"
+  },
+  "keywords": [
+    "mesto-server"
+  ],
+  "author": "Alex Mir",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/totfront/mesto-backend/issues"
+  },
+  "homepage": "https://github.com/totfront/mesto-backend#readme",
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.13.3"
+  }
+}
