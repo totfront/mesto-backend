@@ -27,3 +27,10 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
+
+module.exports.setCurrentUser = (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.update({ _id: req.user._id }, { name, about, avatar })
+    .then((user) => res.send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
