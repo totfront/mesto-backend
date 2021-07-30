@@ -39,3 +39,15 @@ module.exports.addLikeToCard = (req, res) => {
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
+
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { new: true }
+  )
+    .then((card) => {
+      return res.send({ data: card });
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
