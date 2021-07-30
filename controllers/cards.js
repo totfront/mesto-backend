@@ -7,9 +7,23 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.createCard = (req, res) => {
-  const { name, owner, link } = req.body;
+  const { name, link, _id } = req.body;
 
-  Card.create({ name, owner, link })
+  Card.create({
+    name,
+    link,
+    _id,
+  })
     .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+module.exports.deleteCard = (req, res) => {
+  Card.findOneAndDelete({
+    _id: req.params.cardId,
+  })
+    .then((card) => {
+      return res.send({ data: card });
+    })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
