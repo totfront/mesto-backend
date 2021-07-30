@@ -4,7 +4,7 @@
   "description": "backend of Mesto project\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[D\u001bfor \u001b[24~d\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[CMesto-auth project",
   "main": "app.js",
   "scripts": {
-    "start": "app.js",
+    "start": "nodemon app.js",
     "test": "test",
     "lint": "npx eslint ."
   },
