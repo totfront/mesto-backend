@@ -3,7 +3,23 @@ const Card = require("../models/card");
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} + Переданы некорректные данные при создании карточки`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточка не найдена`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
+      }
+    });
 };
 
 module.exports.createCard = (req, res) => {
@@ -15,7 +31,23 @@ module.exports.createCard = (req, res) => {
     _id,
   })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} + Переданы некорректные данные при создании карточки`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточка не найдена`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
+      }
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -25,7 +57,23 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => {
       return res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} + Переданы некорректные данные в методы создания карточки`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточка с указанным _id не найдена`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
+      }
+    });
 };
 
 module.exports.addLikeToCard = (req, res) => {
@@ -37,7 +85,23 @@ module.exports.addLikeToCard = (req, res) => {
     .then((card) => {
       return res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} +  : Переданы некорректные данные для постановки лайка.`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} : Карточка не найдена`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
+      }
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -49,5 +113,21 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       return res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} + Переданы некорректные данные для снятии лайка`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточка не найдена`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
+      }
+    });
 };
