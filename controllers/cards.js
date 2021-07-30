@@ -27,3 +27,16 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
+
+// Добавить лайк карточке
+// module.exports.addLike = (req, res) => {
+//   const { _id } = req.params.cardId;
+
+//   Card.insert({
+//     _id,
+//   })
+//     .then((card) => res.send({ data: card }))
+//     .catch((err) => res.status(500).send({ message: err.message }));
+// };
+
+// Убрать лайк
