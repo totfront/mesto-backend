@@ -28,15 +28,14 @@ module.exports.deleteCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-// Добавить лайк карточке
-// module.exports.addLike = (req, res) => {
-//   const { _id } = req.params.cardId;
-
-//   Card.insert({
-//     _id,
-//   })
-//     .then((card) => res.send({ data: card }))
-//     .catch((err) => res.status(500).send({ message: err.message }));
-// };
-
-// Убрать лайк
+module.exports.addLikeToCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true }
+  )
+    .then((card) => {
+      return res.send({ data: card });
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
