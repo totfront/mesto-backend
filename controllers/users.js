@@ -2,27 +2,18 @@ const User = require("../models/user");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
+    .orFail(new Error("noUsers"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} : Переданы некорректные данные при создании пользователя.`,
-        });
+      if (err.message === "noUsers") {
+        return err.status(404).send({ message: "Пользователей не обнаружено" });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Пользователи не найдены.`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} : Ошибка по-умолчанию`,
-        });
-      }
+      return err.status(500).send({ message: "Произошла ошибка" });
     });
 };
 module.exports.getUser = (req, res) => {
   User.find({})
+    .orFail(new Error("NotValid"))
     .then((users) =>
       users.find((user) => {
         if (user._id == req.params.id) {
@@ -33,44 +24,23 @@ module.exports.getUser = (req, res) => {
     )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} : Пользователь по указанному _id не найден.`,
-        });
+      if (err.message === "NotValidId") {
+        return res.status(404).send({ message: "Пользователя нет в базе" });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Пользователь с указанным _id не найден.`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} : Ошибка по-умолчанию`,
-        });
-      }
+      return res.status(500).send({ message: "Произошла ошибка" });
     });
 };
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
+    .orFail(new Error("userIsNotCreated"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} : Переданы некорректные данные при создании пользователя.`,
-        });
+      if (err.message === "userIsNotCreated") {
+        return err.status(404).message({ message: "Пользователь не создан" });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Пользователь с указанным _id не найден.`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} : Ошибка по-умолчанию`,
-        });
-      }
+      return err.status(500).message({ message: "Произошла ошибка" });
     });
 };
 module.exports.setCurrentUser = (req, res) => {
@@ -80,23 +50,15 @@ module.exports.setCurrentUser = (req, res) => {
     { name, about, avatar },
     { new: true, runValidators: true }
   )
+    .orFail(new Error("userIsNotUpdated"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} : Переданы некорректные данные при обновлении профиля.`,
-        });
+      if (err.message === "userIsNotUpdated") {
+        return err
+          .status(404)
+          .message({ message: "Данные пользователя не обновлены" });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Пользователь с указанным _id не найден.`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} : Ошибка по-умолчанию`,
-        });
-      }
+      return err.status(500).message({ message: "Произошла ошибка" });
     });
 };
 module.exports.setUsersAvatar = (req, res) => {
@@ -106,22 +68,12 @@ module.exports.setUsersAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true }
   )
+    .orFail(new Error("avatarIsNotUpdated"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} : Переданы некорректные данные при обновлении аватара.`,
-        });
+      if (err.message === "avatarIsNotUpdated") {
+        return err.status(404).message({ message: "Аватар не обновлен" });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Пользователь с указанным _id не найден.`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} : Ошибка по-умолчанию`,
-        });
-      }
+      return err.status(500).message({ message: "Произошла ошибка" });
     });
 };
