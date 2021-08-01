@@ -6,9 +6,9 @@ module.exports.getUsers = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === "noUsers") {
-        return err.status(404).send({ message: "Пользователей не обнаружено" });
+        return res.status(404).send({ message: "Пользователей не обнаружено" });
       }
-      return err.status(500).send({ message: "Произошла ошибка" });
+      return res.status(500).send({ message: "Произошла ошибка" });
     });
 };
 module.exports.getUser = (req, res) => {
@@ -19,28 +19,26 @@ module.exports.getUser = (req, res) => {
         if (user._id == req.params.id) {
           return user;
         }
-        return null;
+        return res.status(404).send({ message: "Пользователя нет в базе" });
       })
     )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === "NotValidId") {
-        return res.status(404).send({ message: "Пользователя нет в базе" });
+        res.status(404).send({ message: "Пользователя нет в базе" });
       }
-      return res.status(500).send({ message: "Произошла ошибка" });
+      res.status(500).send({ message: "Произошла ошибка" });
     });
 };
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .orFail(new Error("userIsNotCreated"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === "userIsNotCreated") {
-        return err.status(404).message({ message: "Пользователь не создан" });
-      }
-      return err.status(500).message({ message: "Произошла ошибка" });
+      return res
+        .status(500)
+        .send({ message: `(${err}) - Пользователь не создан` });
     });
 };
 module.exports.setCurrentUser = (req, res) => {
@@ -54,11 +52,11 @@ module.exports.setCurrentUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === "userIsNotUpdated") {
-        return err
+        return res
           .status(404)
-          .message({ message: "Данные пользователя не обновлены" });
+          .send({ message: `(${err}) - Данные пользователя не обновлены` });
       }
-      return err.status(500).message({ message: "Произошла ошибка" });
+      return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
     });
 };
 module.exports.setUsersAvatar = (req, res) => {
@@ -72,8 +70,10 @@ module.exports.setUsersAvatar = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === "avatarIsNotUpdated") {
-        return err.status(404).message({ message: "Аватар не обновлен" });
+        return res
+          .status(404)
+          .send({ message: `(${err}) - Аватар не обновлен` });
       }
-      return err.status(500).message({ message: "Произошла ошибка" });
+      return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
     });
 };
