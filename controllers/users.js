@@ -75,7 +75,11 @@ module.exports.createUser = (req, res) => {
 };
 module.exports.setCurrentUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  User.update({ _id: req.user._id }, { name, about, avatar })
+  User.update(
+    { _id: req.user._id },
+    { name, about, avatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "400") {
@@ -97,7 +101,11 @@ module.exports.setCurrentUser = (req, res) => {
 };
 module.exports.setUsersAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.update({ _id: req.user._id }, { avatar })
+  User.update(
+    { _id: req.user._id },
+    { avatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "400") {
