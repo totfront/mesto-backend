@@ -14,20 +14,30 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.createCard = (req, res) => {
-  const { name, link, _id } = req.body;
-
+  const { name, link } = req.body;
   Card.create({
     name,
     link,
-    _id,
+    owner: req.user._id,
   })
-    .orFail(new Error("cardIsNotCreated"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      return res.send({ data: card });
+    })
     .catch((err) => {
-      if (err.message === "cardIsNotCreated") {
-        res.status(404).send({ message: "Карточка не создана" });
-      } else {
-        res.status(500).send({ message: "Произошла ошибка" });
+      if (err.name === "400") {
+        return res.status(400).send({
+          message: `${err.message} + Переданы некорректные данные в методы создания карточки`,
+        });
+      }
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточка не создана`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по-умолчанию`,
+        });
       }
     });
 };
@@ -40,11 +50,6 @@ module.exports.deleteCard = (req, res) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} + Переданы некорректные данные в методы создания карточки`,
-        });
-      }
       if (err.name === "404") {
         return res.status(404).send({
           message: `${err.message} + Карточка с указанным _id не найдена`,

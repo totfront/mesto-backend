@@ -12,16 +12,9 @@ module.exports.getUsers = (req, res) => {
     });
 };
 module.exports.getUser = (req, res) => {
-  User.find({})
+  console.log(req.params.id);
+  User.find({ _id: req.params.id })
     .orFail(new Error("NotValid"))
-    .then((users) =>
-      users.find((user) => {
-        if (user._id == req.params.id) {
-          return user;
-        }
-        return res.status(404).send({ message: "Пользователя нет в базе" });
-      })
-    )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === "NotValidId") {
@@ -42,10 +35,10 @@ module.exports.createUser = (req, res) => {
     });
 };
 module.exports.setCurrentUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about } = req.body;
   User.update(
     { _id: req.user._id },
-    { name, about, avatar },
+    { name, about },
     { new: true, runValidators: true }
   )
     .orFail(new Error("userIsNotUpdated"))
