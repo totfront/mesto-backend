@@ -8,11 +8,7 @@ module.exports.getUsers = (req, res) => {
       }
       return res.send({ data: "Нет пользователей" });
     })
-    .catch((err) => {
-      return res
-        .status(500)
-        .send({ message: `${err.message} + Ошибка по умолчанию` });
-    });
+    .catch((err) => res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` }));
 };
 module.exports.getUser = (req, res) => {
   User.find({ _id: req.params.id })
@@ -34,7 +30,6 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      console.log(err.name);
       if (err.name === "ValidationError") {
         res.status(400).send({
           message: `${err.message} + Переданы не валидные данные пользователя`,
@@ -48,7 +43,7 @@ module.exports.setCurrentUser = (req, res) => {
   User.update(
     { _id: req.user._id },
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(new Error("notUpdated"))
     .then((user) => res.send(user))
@@ -74,7 +69,7 @@ module.exports.setUsersAvatar = (req, res) => {
   User.update(
     { _id: req.user._id },
     { avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(new Error("avatarIsNotUpdated"))
     .then((user) => res.send(user))
