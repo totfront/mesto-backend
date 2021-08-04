@@ -9,11 +9,6 @@ module.exports.getCards = (req, res) => {
       return res.send({ data: "Нет карточек" });
     })
     .catch((err) => {
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} + Карточки не найдены`,
-        });
-      }
       if (err.name === "500") {
         return res.status(500).send({
           message: `${err.message} + Ошибка по умолчанию`,

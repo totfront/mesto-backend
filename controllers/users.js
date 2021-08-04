@@ -2,24 +2,30 @@ const User = require("../models/user");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .orFail(new Error("noUsers"))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.message === "noUsers") {
-        return res.status(404).send({ message: "Пользователей не обнаружено" });
+    .then((user) => {
+      if (user.length !== 0) {
+        return res.send({ data: user });
       }
-      return res.status(500).send({ message: "Произошла ошибка" });
+      return res.send({ data: "Нет пользователей" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .send({ message: `${err.message} + Ошибка по умолчанию` });
     });
 };
 module.exports.getUser = (req, res) => {
   User.find({ _id: req.params.id })
-    .orFail(new Error("NotValid"))
+    .orFail(new Error("noUser"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === "NotValidId") {
+      if (err.message === "noUser") {
         res.status(404).send({ message: "Пользователя нет в базе" });
       }
-      res.status(500).send({ message: "Произошла ошибка" });
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Невалидный id " });
+      }
+      res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` });
     });
 };
 module.exports.createUser = (req, res) => {
@@ -28,9 +34,13 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      return res
-        .status(500)
-        .send({ message: `(${err}) - Пользователь не создан` });
+      console.log(err.name);
+      if (err.name === "ValidationError") {
+        res.status(400).send({
+          message: `${err.message} + Переданы не валидные данные пользователя`,
+        });
+      }
+      res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` });
     });
 };
 module.exports.setCurrentUser = (req, res) => {
@@ -40,13 +50,21 @@ module.exports.setCurrentUser = (req, res) => {
     { name, about },
     { new: true, runValidators: true }
   )
-    .orFail(new Error("userIsNotUpdated"))
+    .orFail(new Error("notUpdated"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === "userIsNotUpdated") {
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Невалидный id " });
+      }
+      if (err.name === "ValidationError") {
         return res
-          .status(404)
-          .send({ message: `(${err}) - Данные пользователя не обновлены` });
+          .status(400)
+          .send({ message: "Невалидные данные пользователя" });
+      }
+      if (err.message === "notUpdated") {
+        return res.status(404).send({
+          message: `(${err}) - Данные пользователя не обновлены`,
+        });
       }
       return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
     });
@@ -61,6 +79,12 @@ module.exports.setUsersAvatar = (req, res) => {
     .orFail(new Error("avatarIsNotUpdated"))
     .then((user) => res.send(user))
     .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Невалидный id " });
+      }
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: "Невалидные данные" });
+      }
       if (err.message === "avatarIsNotUpdated") {
         return res
           .status(404)

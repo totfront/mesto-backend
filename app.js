@@ -10,7 +10,7 @@ const app = express();
 mongoose.connect("mongodb://localhost:27017/mestodb", {
   useNewUrlParser: true,
   useCreateIndex: true,
-  useFindAndModify: false,
+  useFindAndModify: true,
 });
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(helmet());
 app.use((req, res, next) => {
   req.user = {
-    _id: "61027bfaec7a212ab4bba827",
+    _id: "610a9d3e2958ab4174947fe4",
   };
   next();
 });
