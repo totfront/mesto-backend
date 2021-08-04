@@ -12,7 +12,6 @@ module.exports.getUsers = (req, res) => {
     });
 };
 module.exports.getUser = (req, res) => {
-  console.log(req.params.id);
   User.find({ _id: req.params.id })
     .orFail(new Error("NotValid"))
     .then((user) => res.send({ data: user }))

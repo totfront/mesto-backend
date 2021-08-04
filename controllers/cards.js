@@ -2,13 +2,22 @@ const Card = require("../models/card");
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .orFail(new Error("noCards"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card.length !== 0) {
+        return res.send({ data: card });
+      }
+      return res.send({ data: "Нет карточек" });
+    })
     .catch((err) => {
-      if (err.message === "noCards") {
-        res.status(404).send({ message: "Нет созданных карточек" });
-      } else {
-        res.status(500).send({ message: "Произошла ошибка" });
+      if (err.name === "404") {
+        return res.status(404).send({
+          message: `${err.message} + Карточки не найдены`,
+        });
+      }
+      if (err.name === "500") {
+        return res.status(500).send({
+          message: `${err.message} + Ошибка по умолчанию`,
+        });
       }
     });
 };
@@ -24,21 +33,14 @@ module.exports.createCard = (req, res) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "400") {
+      if (err.name === "ValidationError") {
         return res.status(400).send({
           message: `${err.message} + Переданы некорректные данные в методы создания карточки`,
         });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} + Карточка не создана`,
-        });
-      }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} + Ошибка по-умолчанию`,
-        });
-      }
+      return res.status(500).send({
+        message: `${err.message} + Ошибка по умолчанию`,
+      });
     });
 };
 
@@ -50,16 +52,12 @@ module.exports.deleteCard = (req, res) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} + Карточка с указанным _id не найдена`,
-        });
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Невалидный id " });
       }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} + Ошибка по-умолчанию`,
-        });
-      }
+      return res.status(500).send({
+        message: `${err.message} + Ошибка по умолчанию`,
+      });
     });
 };
 
@@ -69,25 +67,22 @@ module.exports.addLikeToCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
+    .orFail(new Error("NotValid"))
     .then((card) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} +  : Переданы некорректные данные для постановки лайка.`,
-        });
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Невалидный id " });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} : Карточка не найдена`,
-        });
+      if (err.message === "NotValid") {
+        return res
+          .status(404)
+          .send({ message: "Карточки с указанным id не существует" });
       }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} + Ошибка по-умолчанию`,
-        });
-      }
+      return res.status(500).send({
+        message: `${err.message} + Ошибка по умолчанию`,
+      });
     });
 };
 
@@ -97,24 +92,21 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
+    .orFail(new Error("NotFound"))
     .then((card) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "400") {
-        return res.status(400).send({
-          message: `${err.message} + Переданы некорректные данные для снятии лайка`,
-        });
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Невалидный id " });
       }
-      if (err.name === "404") {
-        return res.status(404).send({
-          message: `${err.message} + Карточка не найдена`,
-        });
+      if (err.message === "NotValid") {
+        return res
+          .status(404)
+          .send({ message: "Карточки с указанным id не существует" });
       }
-      if (err.name === "500") {
-        return res.status(500).send({
-          message: `${err.message} + Ошибка по-умолчанию`,
-        });
-      }
+      return res.status(500).send({
+        message: `${err.message} + Ошибка по умолчанию`,
+      });
     });
 };
