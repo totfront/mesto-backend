@@ -31,7 +31,7 @@ app.use("/cards", require("./routes/cards"));
 app.use("*", (req, res) => {
   res
     .status(400)
-    .send(JSON.stringify({ message: "Запрашиваемый ресурс не найден" }));
+    .send({ message: "Запрашиваемый ресурс не найден" });
 });
 
 app.listen(PORT, () => {

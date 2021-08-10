@@ -35,10 +35,16 @@ module.exports.deleteCard = (req, res) => {
   Card.findOneAndDelete({
     _id: req.params.cardId,
   })
+    .orFail(new Error("NotFound"))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(400).send({ message: "Невалидный id " });
+      }
+      if (err.message === "NotFound") {
+        return res
+          .status(404)
+          .send({ message: "Карточки с указанным id не существует" });
       }
       return res.status(500).send({
         message: `${err.message} + Ошибка по умолчанию`,
@@ -56,7 +62,7 @@ module.exports.addLikeToCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(400).send({ message: "Невалидный id " });
+        return res.status(400).send({ message: "Невалидный id " });
       }
       if (err.message === "NotValid") {
         return res
@@ -79,9 +85,9 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(400).send({ message: "Невалидный id " });
+        return res.status(400).send({ message: "Невалидный id " });
       }
-      if (err.message === "NotValid") {
+      if (err.message === "NotFound") {
         return res
           .status(404)
           .send({ message: "Карточки с указанным id не существует" });
