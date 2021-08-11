@@ -1,4 +1,5 @@
 const validator = require("validator");
+const bcrypt = require('bcryptjs');
 const User = require("../models/user");
 
 module.exports.getUsers = (req, res) => {
@@ -33,23 +34,26 @@ module.exports.createUser = (req, res) => {
   } = req.body;
 
   if (validator.isEmail(email)) {
-    User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password,
-    })
-      .then((user) => res.send({ data: user }))
-      .catch((err) => {
-        if (err.name === "ValidationError") {
-          return res.status(400).send({
-            message: `${err.message} + Переданы не валидные данные пользователя`,
+    bcrypt.hash(password, 10)
+      .then((hash) => {
+        User.create({
+          name,
+          about,
+          avatar,
+          email,
+          password: hash,
+        })
+          .then((user) => res.send({ data: user }))
+          .catch((err) => {
+            if (err.name === "ValidationError") {
+              return res.status(400).send({
+                message: `${err.message} + Переданы не валидные данные пользователя`,
+              });
+            }
+            return res
+              .status(500)
+              .send({ message: `${err.message} + Ошибка по умолчанию` });
           });
-        }
-        return res
-          .status(500)
-          .send({ message: `${err.message} + Ошибка по умолчанию` });
       });
   } else {
     res.send("Невалидный email");
