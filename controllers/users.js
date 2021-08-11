@@ -1,3 +1,4 @@
+const validator = require("validator");
 const User = require("../models/user");
 
 module.exports.getUsers = (req, res) => {
@@ -21,22 +22,38 @@ module.exports.getUser = (req, res) => {
       if (err.name === "CastError") {
         return res.status(400).send({ message: "Невалидный id " });
       }
-      return res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` });
+      return res
+        .status(500)
+        .send({ message: `${err.message} + Ошибка по умолчанию` });
     });
 };
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({
-          message: `${err.message} + Переданы не валидные данные пользователя`,
-        });
-      }
-      return res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` });
-    });
+  if (validator.isEmail(email)) {
+    User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password,
+    })
+      .then((user) => res.send({ data: user }))
+      .catch((err) => {
+        if (err.name === "ValidationError") {
+          return res.status(400).send({
+            message: `${err.message} + Переданы не валидные данные пользователя`,
+          });
+        }
+        return res
+          .status(500)
+          .send({ message: `${err.message} + Ошибка по умолчанию` });
+      });
+  } else {
+    res.send("Невалидный email");
+  }
 };
 module.exports.setCurrentUser = (req, res) => {
   const { name, about } = req.body;
