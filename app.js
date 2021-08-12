@@ -27,13 +27,11 @@ app.use((req, res, next) => {
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
-app.use("/signin", require("./routes/users"));
-app.use("/signup", require("./routes/users"));
+app.use("/signin", require("./routes/signin"));
+app.use("/signup", require("./routes/signup"));
 
 app.use("*", (req, res) => {
-  res
-    .status(400)
-    .send({ message: "Запрашиваемый ресурс не найден" });
+  res.status(400).send({ message: "Запрашиваемый ресурс не найден" });
 });
 
 app.listen(PORT, () => {
