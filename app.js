@@ -1,7 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
+
+dotenv.config();
 
 const { PORT = 3000 } = process.env;
 

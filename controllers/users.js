@@ -132,7 +132,7 @@ module.exports.login = (req, res) => {
           return res.status(403).send({ error: "Неправильный пароль" });
         }
         if (isValid) {
-          const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "7d",
           });
           res
