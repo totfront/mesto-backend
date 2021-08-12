@@ -1,3 +1,6 @@
+const validator = require("validator");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require("../models/user");
 
 module.exports.getUsers = (req, res) => {
@@ -86,5 +89,32 @@ module.exports.setUsersAvatar = (req, res) => {
           .send({ message: `(${err}) - Пользователь не найден` });
       }
       return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
+    });
+};
+
+module.exports.login = (req, res) => {
+  let token;
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // hashes did not compared — reject promise
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      // auth is successful
+      return res.send({ message: 'Всё верно!' });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
