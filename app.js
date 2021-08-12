@@ -27,6 +27,8 @@ app.use((req, res, next) => {
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
+app.use("/signin", require("./routes/users"));
+app.use("/signup", require("./routes/users"));
 
 app.use("*", (req, res) => {
   res
