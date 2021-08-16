@@ -41,7 +41,7 @@ module.exports.createUser = (req, res) => {
     User.findOne({ email }).then((user) => {
       if (user) {
         return res
-          .status(403)
+          .status(409)
           .send({ message: "Пользователь с таким email уже существует" });
       }
       return bcrypt.hash(password, 10).then((hash) => {
@@ -132,7 +132,7 @@ module.exports.login = (req, res) => {
           return res.status(403).send({ error });
         }
         if (!isValid) {
-          return res.status(403).send({ error: "Неправильный пароль" });
+          return res.status(401).send({ error: "Неправильный пароль или логин" });
         }
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
           expiresIn: "7d",
