@@ -1,7 +1,10 @@
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 const User = require("../models/user");
+
+dotenv.config();
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -11,9 +14,7 @@ module.exports.getUsers = (req, res) => {
       }
       return res.send({ data: "Нет пользователей" });
     })
-    .catch((err) =>
-      res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` })
-    );
+    .catch((err) => res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` }));
 };
 module.exports.getUser = (req, res) => {
   User.find({ _id: req.params.id })
@@ -32,16 +33,18 @@ module.exports.getUser = (req, res) => {
     });
 };
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   if (validator.isEmail(email)) {
     User.findOne({ email }).then((user) => {
       if (user) {
         return res
           .status(403)
-          .send({ message: "Пользователь с таким email уже судествует" });
+          .send({ message: "Пользователь с таким email уже существует" });
       }
-      bcrypt.hash(password, 10).then((hash) => {
+      return bcrypt.hash(password, 10).then((hash) => {
         User.create({
           name,
           about,
@@ -49,7 +52,7 @@ module.exports.createUser = (req, res) => {
           email,
           password: hash,
         })
-          .then((user) => res.send({ data: user }))
+          .then((userData) => res.send({ data: userData }))
           .catch((err) => {
             if (err.name === "ValidationError") {
               return res.status(400).send({
@@ -71,7 +74,7 @@ module.exports.setCurrentUser = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(new Error("notFound"))
     .then((user) => res.send(user))
@@ -97,7 +100,7 @@ module.exports.setUsersAvatar = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(new Error("notFound"))
     .then((user) => res.send(user))
@@ -124,28 +127,43 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error("Неправильная почта"));
       }
-      bcrypt.compare(password, user.password, (error, isValid) => {
+      return bcrypt.compare(password, user.password, (error, isValid) => {
         if (error) {
           return res.status(403).send({ error });
         }
         if (!isValid) {
           return res.status(403).send({ error: "Неправильный пароль" });
         }
-        if (isValid) {
-          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "7d",
-          });
-          res
-            .cookie("jwt", token, {
-              httpOnly: true,
-              sameSite: true,
-            })
-            .status(200)
-            .send({ user: user.toJSON() });
-        }
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+          expiresIn: "7d",
+        });
+        return res
+          .cookie("jwt", token, {
+            httpOnly: true,
+            sameSite: true,
+          })
+          .status(200)
+          .send({ user: user.toJSON() });
       });
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });
+    });
+};
+
+module.exports.getCurrentUser = (req, res) => {
+  User.find({ _id: req.params.id })
+    .orFail(new Error("noUser"))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.message === "noUser") {
+        return res.status(404).send({ message: "Пользователя нет в базе" });
+      }
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Невалидный id " });
+      }
+      return res
+        .status(500)
+        .send({ message: `${err.message} + Ошибка по умолчанию` });
     });
 };
