@@ -16,4 +16,4 @@ yarn.lock
 .vscode
 
 # Env variables
-.env
+# .env
