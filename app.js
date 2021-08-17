@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
+const errorsHandler = require("./middlewares/errorsHandler");
 
 const auth = require("./middlewares/auth");
 
@@ -21,7 +22,6 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -36,9 +36,9 @@ app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
 app.use("*", (req, res) => {
-  res.status(400).send({ message: "Запрашиваемый ресурс не найден" });
+  res.status(404).send({ message: "Запрашиваемый ресурс не найден" });
 });
-
+app.use(errorsHandler);
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
