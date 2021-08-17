@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const errorsHandler = require("./middlewares/errorsHandler");
+const NotFoundError = require('./errors/NotFoundError');
 
 const auth = require("./middlewares/auth");
 
@@ -35,9 +36,7 @@ app.use(auth);
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
-app.use("*", (req, res) => {
-  res.status(404).send({ message: "Запрашиваемый ресурс не найден" });
-});
+app.use("*", (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 app.use(errorsHandler);
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
