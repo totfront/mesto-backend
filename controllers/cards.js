@@ -32,11 +32,17 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findOneAndDelete({
-    _id: req.params.cardId,
-  })
+  const owner = req.user._id;
+  Card.findOne({ _id: req.params.cardId })
     .orFail(new Error("NotFound"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card.owner !== owner) {
+        return next(new InvalidError('You cant delete this card'));
+      }
+      return Card.deleteOne({ _id: req.params.cardId })
+        .then((foundCard) => res.send({ data: foundCard, status: 'deleted' }))
+        .catch((err) => res.status(500).send({ message: `${err.message} + ошибка по умолчанию` }));
+    })
     .catch((err) => {
       if (err.name === "CastError") {
         return next(new InvalidError('Невалидный id'));
