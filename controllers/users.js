@@ -93,7 +93,7 @@ module.exports.setCurrentUser = (req, res, next) => {
       return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
     });
 };
-module.exports.setUsersAvatar = (req, res, next) => {
+module.exports.setUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     { _id: req.user._id },

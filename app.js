@@ -1,4 +1,6 @@
 const express = require("express");
+const validator = require("validator");
+const { celebrate, errors, Joi } = require('celebrate');
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
@@ -28,8 +30,21 @@ app.use(bodyParser.json());
 
 app.use(helmet());
 
-app.use("/signin", require("./routes/signin"));
-app.use("/signup", require("./routes/signup"));
+app.use("/signin", celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), require("./routes/signin"));
+app.use("/signup", celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string(),
+  }),
+}), require("./routes/signup"));
 
 app.use(auth);
 
@@ -37,6 +52,8 @@ app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
 app.use("*", (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
+
+app.use(errors());
 app.use(errorsHandler);
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

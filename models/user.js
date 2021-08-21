@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    select: false,
+    // select: false,
+    // если укажем select: false, то не получим хэш для сравнение введенного пароля с помощью bcrypt
   },
 });
 
