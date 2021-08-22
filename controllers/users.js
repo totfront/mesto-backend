@@ -8,10 +8,11 @@ const InvalidError = require('../errors/InvalidError');
 const ConflictError = require('../errors/ConflictError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const ServerError = require('../errors/ServerError');
 
 dotenv.config();
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => {
       if (user.length !== 0) {
@@ -19,7 +20,7 @@ module.exports.getUsers = (req, res) => {
       }
       return res.send({ data: "Нет пользователей" });
     })
-    .catch((err) => res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` }));
+    .catch((err) => next(new ServerError(`${err.message} - Ошибка по умолчанию`)));
 };
 module.exports.getUser = (req, res, next) => {
   User.find({ _id: req.params.id })
@@ -32,9 +33,7 @@ module.exports.getUser = (req, res, next) => {
       if (err.name === "CastError") {
         return next(new InvalidError('Невалидный id'));
       }
-      return res
-        .status(500)
-        .send({ message: `${err.message} + Ошибка по умолчанию` });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
     });
 };
 module.exports.createUser = (req, res, next) => {
@@ -61,9 +60,7 @@ module.exports.createUser = (req, res, next) => {
               console.log(err.message);
               return next(new InvalidError('Переданы не валидные данные пользователя'));
             }
-            return res
-              .status(500)
-              .send({ message: `${err.message} + Ошибка по умолчанию` });
+            return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
           });
       });
     });
@@ -90,7 +87,7 @@ module.exports.setCurrentUser = (req, res, next) => {
       if (err.message === "notFound") {
         return next(new NotFoundError("Пользователь не найден"));
       }
-      return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
     });
 };
 module.exports.setUserAvatar = (req, res, next) => {
@@ -112,7 +109,7 @@ module.exports.setUserAvatar = (req, res, next) => {
       if (err.message === "notFound") {
         return next(new NotFoundError("Пользователь не найден"));
       }
-      return res.status(500).send({ message: `(${err}) - Произошла ошибка` });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
     });
 };
 
@@ -161,8 +158,6 @@ module.exports.getCurrentUser = (req, res, next) => {
       if (err.name === "CastError") {
         return next(new InvalidError('Невалидный id'));
       }
-      return res
-        .status(500)
-        .send({ message: `${err.message} + Ошибка по умолчанию` });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
     });
 };
