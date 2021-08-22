@@ -120,7 +120,7 @@ module.exports.login = (req, res, next) => {
     return next(new InvalidError("Email или пароль не могут быть пустыми"));
   }
 
-  return User.findOne({ email })
+  return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return next(new NotFoundError('Неправильный пароль или логин'));
