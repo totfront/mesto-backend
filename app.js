@@ -8,6 +8,7 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const errorsHandler = require("./middlewares/errorsHandler");
 const NotFoundError = require('./errors/NotFoundError');
+const isUrlValid = require("./utils/isUrlValid");
 
 const auth = require("./middlewares/auth");
 
@@ -42,7 +43,7 @@ app.use("/signup", celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().custom(isUrlValid),
   }),
 }), require("./routes/signup"));
 

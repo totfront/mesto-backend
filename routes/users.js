@@ -1,7 +1,6 @@
 const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
 const router = require("express").Router();
-const ForbiddenError = require('../errors/ForbiddenError');
+const isUrlValid = require("../utils/isUrlValid");
 const {
   getUsers,
   getUser,
@@ -9,13 +8,6 @@ const {
   setUserAvatar,
   getCurrentUser,
 } = require("../controllers/users");
-
-const isUrlValid = (url) => {
-  if (validator.isUrl(url)) {
-    return url;
-  }
-  return new ForbiddenError("Невалидный url картинки");
-};
 
 router.patch("/me", celebrate({
   body: Joi.object().keys({
@@ -25,8 +17,7 @@ router.patch("/me", celebrate({
 }), setCurrentUser);
 router.patch("/me/avatar", celebrate({
   body: Joi.object().keys({
-    // avatar: Joi.string().custom(isUrlValid),
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().custom(isUrlValid),
   }),
 }), setUserAvatar);
 router.get("/:id", celebrate({
