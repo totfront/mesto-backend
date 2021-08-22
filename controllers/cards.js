@@ -1,8 +1,9 @@
 const Card = require("../models/card");
 const NotFoundError = require("../errors/NotFoundError");
 const InvalidError = require('../errors/InvalidError');
+const ServerError = require('../errors/ServerError');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((card) => {
       if (card.length !== 0) {
@@ -10,7 +11,7 @@ module.exports.getCards = (req, res) => {
       }
       return res.send({ data: "Нет карточек" });
     })
-    .catch((err) => res.status(500).send({ message: `${err.message} + Ошибка по умолчанию` }));
+    .catch((err) => next(new ServerError(`${err.message} - Ошибка по умолчанию`)));
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -25,9 +26,7 @@ module.exports.createCard = (req, res, next) => {
       if (err.name === "ValidationError") {
         return next(new InvalidError('Переданы некорректные данные в методы создания карточки'));
       }
-      return res.status(500).send({
-        message: `${err.message} + Ошибка по умолчанию`,
-      });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`))
     });
 };
 
@@ -41,7 +40,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
       return Card.deleteOne({ _id: req.params.cardId })
         .then((foundCard) => res.send({ data: foundCard, status: 'deleted' }))
-        .catch((err) => res.status(500).send({ message: `${err.message} + ошибка по умолчанию` }));
+        .catch((err) => next(new ServerError(`${err.message} - Ошибка по умолчанию`)));
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -50,9 +49,7 @@ module.exports.deleteCard = (req, res, next) => {
       if (err.message === "NotFound") {
         return next(new NotFoundError('Карточки с указанным id не существует'));
       }
-      return res.status(500).send({
-        message: `${err.message} + Ошибка по умолчанию`,
-      });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`))
     });
 };
 
@@ -71,9 +68,7 @@ module.exports.addLikeToCard = (req, res, next) => {
       if (err.message === "NotFound") {
         return next(new NotFoundError("Карточки с указанным id не существует"));
       }
-      return res.status(500).send({
-        message: `${err.message} + Ошибка по умолчанию`,
-      });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`))
     });
 };
 
@@ -92,8 +87,6 @@ module.exports.dislikeCard = (req, res, next) => {
       if (err.message === "NotFound") {
         return next(new NotFoundError('Карточки с указанным id не существует'));
       }
-      return res.status(500).send({
-        message: `${err.message} + Ошибка по умолчанию`,
-      });
+      return next(new ServerError(`${err.message} - Ошибка по умолчанию`))
     });
 };
