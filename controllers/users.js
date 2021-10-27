@@ -57,7 +57,6 @@ module.exports.createUser = (req, res, next) => {
           .then((userData) => res.send({ data: userData }))
           .catch((err) => {
             if (err.name === "ValidationError") {
-              console.log(err.message);
               return next(new InvalidError('Переданы не валидные данные пользователя'));
             }
             return next(new ServerError(`${err.message} - Ошибка по умолчанию`));
@@ -123,7 +122,7 @@ module.exports.login = (req, res, next) => {
   return User.findOne({ email })
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Неправильный пароль или логин'));
+        return next(new UnauthorizedError('Неправильный пароль или логин'));
       }
       return bcrypt.compare(password, user.password, (error, isValid) => {
         if (error) {
@@ -134,6 +133,10 @@ module.exports.login = (req, res, next) => {
         }
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
           expiresIn: "7d",
+        });
+        res.cookie("_id", user._id, {
+          httpOnly: true,
+          sameSite: true,
         });
         return res
           .cookie("jwt", token, {
@@ -148,7 +151,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.find({ _id: req.params.id })
+  User.find({ _id: req.cookies._id })
     .orFail(new Error("noUser"))
     .then((user) => res.send({ data: user }))
     .catch((err) => {

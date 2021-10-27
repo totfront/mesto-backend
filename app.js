@@ -1,5 +1,4 @@
 const express = require("express");
-const validator = require("validator");
 const { celebrate, errors, Joi } = require('celebrate');
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -55,6 +54,4 @@ app.use("*", (req, res, next) => next(new NotFoundError('Запрашиваем�
 
 app.use(errors());
 app.use(errorsHandler);
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);

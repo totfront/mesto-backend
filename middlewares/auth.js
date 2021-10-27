@@ -4,7 +4,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const { JWT_SECRET } = process.env;
 
 const auth = (req, res, next) => {
   if (!req.cookies.jwt) {
@@ -19,7 +19,7 @@ const auth = (req, res, next) => {
     return next(new UnauthorizedError('Авторизация не прошла'));
   }
   req.user = payload;
-  next();
+  return next();
 };
 
 module.exports = auth;
