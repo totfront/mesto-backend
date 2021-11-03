@@ -139,12 +139,14 @@ module.exports.login = (req, res, next) => {
           sameSite: true,
         });
         return res
+          // Send JWT в cookie to predict XSS-atack
           .cookie("jwt", token, {
             httpOnly: true,
-            sameSite: true,
+            sameSite: "None",
+            // secure: true,
           })
           .status(200)
-          .send({ user: user.toJSON() });
+          .send({ message: 'Login succeed' });
       });
     })
     .catch((err) => next(new UnauthorizedError(err.message)));
