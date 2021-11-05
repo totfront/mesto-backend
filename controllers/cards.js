@@ -6,9 +6,9 @@ const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((card) => {
-      if (card.length !== 0) {
-        return res.send({ data: card });
+    .then((cards) => {
+      if (cards.length !== 0) {
+        return res.send(cards);
       }
       return res.send({ data: "Нет карточек" });
     })
@@ -55,13 +55,14 @@ module.exports.deleteCard = (req, res, next) => {
 };
 
 module.exports.addLikeToCard = (req, res, next) => {
+  console.log(req.params);
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .orFail(new Error("NotFound"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === "CastError") {
         return next(new InvalidError('Невалидный id'));
@@ -80,7 +81,7 @@ module.exports.dislikeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(new Error("NotFound"))
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === "CastError") {
         return next(new InvalidError('Невалидный id'));
